@@ -4,7 +4,7 @@
 
 using namespace std;
 
-struct proc_queue {
+struct process_queue {
 
   int capacity;
   int size;
@@ -14,51 +14,51 @@ struct proc_queue {
 
 };
 
-proc_queue create_wait_queue(int length) {
+process_queue create_queue(int length) {
     
-  proc_queue q;
-  q.elements.resize(length);
-  q.size = 0;
-  q.capacity = length;
-  q.front = 0;
-  q.tail = -1;
+  process_queue queue;
 
-  return q;
+  queue.elements.resize(length);
+  queue.size = 0;
+  queue.capacity = length;
+  queue.front = 0;
+  queue.tail = -1;
+
+  return queue;
 
 }
 
-proc_queue add_process_to_queue(proc_queue q, PROCESS proc) {
+process_queue enqueue(process_queue queue, PROCESS process) {
 
-  if (q.size == q.capacity) {
+  if (queue.size == queue.capacity) {
   
-    cout << "ERROR: queue is full to capacity!" << endl;
+    cout << "ERROR: queue is full!" << endl;
     exit(2);
     
   }
 
-  q.size++;
-  q.tail++;
+  queue.size++;
+  queue.tail++;
 
-  if (q.tail == q.capacity)
-    q.tail = 0;
+  if (queue.tail == queue.capacity) { queue.tail = 0; }
 
-  q.elements[q.tail] = proc;
-  return q;
+  queue.elements[queue.tail] = process;
+  return queue;
 
 }
 
-PROCESS peek_queue_at_index(proc_queue q, int index) {return q.elements[index];}
+PROCESS get_process(process_queue q, int index) {return q.elements[index];}
 
-int iterate_queue_index(proc_queue q, int index) {return q.front + index;}
+int get_index(process_queue q, int index) {return q.front + index;}
 
-void print_proc_queue(proc_queue q) {
+void print_queue(process_queue q) {
 
   PROCESS proc;
 
   cout << "\tInput queue: [ ";
   for (int i = 0; i < q.size; i ++) {
   
-    proc = peek_queue_at_index(q, iterate_queue_index(q, i));
+    proc = get_process(q, get_index(q, i));
     cout << proc.pid << " ";
    
   }
@@ -67,11 +67,11 @@ void print_proc_queue(proc_queue q) {
 
 }
 
-int has_next_element(proc_queue q) {return q.size == 0 ? 0 : 1;}
+int has_next(process_queue q) {return q.size == 0 ? 0 : 1;}
 
-void dequeue_proc(proc_queue q) {
+void dequeue_proc(process_queue q) {
 
-  if (!has_next_element(q)) {
+  if (!has_next(q)) {
     cout << "ERROR: queue is empty, can't dequeue anything." << endl;
     exit(2);
     
@@ -85,7 +85,7 @@ void dequeue_proc(proc_queue q) {
 
 }
 
-proc_queue delete_process_for_queue(proc_queue q, int index) {
+process_queue dequeue_process(process_queue q, int index) {
 
   int prev = 0;
   for (int i = 0; i < q.size; i += 1) {
