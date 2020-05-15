@@ -22,55 +22,13 @@ frame_list create_frame_list(int entries, int pageSize) {
   frameList.entries = entries;
 
   for (int i = 0; i < frameList.entries; i ++) {
-  
-    frameList.frames[i].assigned = 0;
     frameList.frames[i].pageNum = 0;
     frameList.frames[i].assigned_id = 0;
-
+    frameList.frames[i].assigned = 0;
   }
 
   return frameList;
 
-}
-
-void print_list(frame_list list) {
-
-  bool is_free = false;
-  int start = 0;
-
-  cout << "\tMemory map:\n";
-
-  for (int i = 0; i < list.entries; i++) {
-  
-    if (!is_free && !list.frames[i].assigned) {
-    
-      is_free = true;
-      start = i;
-
-    }else if (is_free && list.frames[i].assigned) {
-
-      is_free = false;
-      cout << "\t\t" << start * list.page_size << "-"
-	   << (i * list.page_size) - 1 << ": Free frame(s)\n";
-    }
-     
-    if (list.frames[i].assigned) {
-
-      cout << "\t\t" << i * list.page_size << "-"
-	   << ((i + 1) * list.page_size) - 1 << ": Process"
-           << list.frames[i].assigned_id << ", Page "
-           << list.frames[i].pageNum << endl;
-           
-    }
-
-  }
-   
-  if (is_free) {
-                
-    cout << "\t\t" << start * list.page_size << "-"
-	 << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
-        
-  }
 }
 
 
@@ -78,12 +36,12 @@ frame_list free_frame(frame_list list, int pid) {
 
   for (int i = 0; i < list.entries; i++) {
   
-    if (list.frames[i].assigned_id == pid) {
-   
+    
+    switch(list.frames[i].assigned_id == pid) {
+      default:
       list.frames[i].assigned_id = 0;
       list.frames[i].pageNum = 0;
       list.frames[i].assigned = 0;
-      
     }
   }
 
@@ -145,3 +103,42 @@ frame_list enqueue_process(frame_list list, PROCESS proc) {
 
 }
 
+void print_list(frame_list list) {
+
+  bool is_free = false;
+  int start = 0;
+
+  cout << "\tMemory map:\n";
+
+  for (int i = 0; i < list.entries; i++) {
+  
+    if (!is_free && !list.frames[i].assigned) {
+    
+      is_free = true;
+      start = i;
+
+    }else if (is_free && list.frames[i].assigned) {
+
+      is_free = false;
+      cout << "\t\t" << start * list.page_size << "-"
+	   << (i * list.page_size) - 1 << ": Free frame(s)\n";
+    }
+     
+    if (list.frames[i].assigned) {
+
+      cout << "\t\t" << i * list.page_size << "-"
+	   << ((i + 1) * list.page_size) - 1 << ": Process"
+           << list.frames[i].assigned_id << ", Page "
+           << list.frames[i].pageNum << endl;
+           
+    }
+
+  }
+   
+  if (is_free) {
+                
+    cout << "\t\t" << start * list.page_size << "-"
+	 << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
+        
+  }
+}
