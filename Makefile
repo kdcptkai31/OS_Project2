@@ -7,6 +7,7 @@ main.o: main.cpp
 	g++ -c main.cpp
 
 tar:
-	tar -cvf assignment2_Duty-Thompson-Webber.tar *.cpp *.h *.md *.png
+	tar -cvf assignment2_Duty-Thompson-Webber.tar *.docx *.cpp *.h *.md *.png
 
-clean: rm *.o assignment2_Duty-Thompson-Webber.tar
+clean: 
+	rm *.o assignment2_Duty-Thompson-Webber.tar

@@ -1,7 +1,7 @@
 #include "header.h"
 #include <fstream>
 #include <queue>
- 
+
 using namespace std;
 
 const int TIME_MAX = 100000;
@@ -63,7 +63,7 @@ int main() {
       break;
     }
 
-    if (waitList.size == 0 && is_empty(frameList)) break;
+    if (waitList.size == 0 && is_empty_framelist(frameList)) break;
 
   }//End while loop
 

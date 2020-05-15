@@ -91,7 +91,7 @@ frame_list free_frame(frame_list list, int pid) {
 
 }
 
-int is_empty(frame_list list) {
+int is_empty_framelist(frame_list list) {
         
   for (int i = 0; i < list.entries; i++)
     if (list.frames[i].assigned) return 0;
