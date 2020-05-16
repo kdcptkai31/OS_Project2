@@ -19,8 +19,6 @@ void readData();
 
 void add_process(int current_time);
 
-string time_cast(int current_time);
-
 void extra_memory_helper(int current_time);
 
 void remove_process(int current_time);

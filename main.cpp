@@ -1,7 +1,7 @@
 #include "header.h"
 #include <fstream>
 #include <queue>
-
+ 
 using namespace std;
 
 const int TIME_MAX = 100000;
@@ -11,15 +11,15 @@ int processCount = 0;
 int pageSize = 0;
 int memorySize = 0;
 
-string file_name = "";
+string file_name;
 int last_announcement = -1;
 
-vector<PROCESS> processList;
+vector<process> processList;
 process_queue waitList;
 frame_list frameList;
 
 int main() {
-  // retrieve user input
+
   while (true) {
     cout << "Please enter memory size(0-30000): ";
     cin >> memorySize;
@@ -34,26 +34,26 @@ int main() {
     cout << "***ERROR*** Invalid input! Please try again\n";
   }
 
-  // read values from file into a shared process list
+
   readData();
 
-  // create a shared queue with a capacity = # of procs
+
   waitList = create_queue(processCount);
 
-  // create a shared frameList
+
   frameList = create_frame_list(memorySize / pageSize, pageSize);
 
   long current_time = 0;
 
-  while (1) {
-    // queue any procs that have arrived
+  while (true) {
+
     add_process(current_time);
 
-    // remove any completed procs
+
     remove_process(current_time);
 
-    // assign available memory to procs that need it
-    assign_memory_for_process(current_time);
+
+    extra_memory_helper(current_time);
 
     current_time++;
 
@@ -65,14 +65,14 @@ int main() {
 
     if (waitList.size == 0 && is_empty_framelist(frameList)) break;
 
-  }//End while loop
+  }
 
   print_turnaround_times();
 
   return 0;
 }
 
-// Creates list of processes from input file
+
 void readData() {
   cout << "Please enter the file name: ";
   cin >> file_name;
@@ -80,88 +80,60 @@ void readData() {
   ifstream myFile;
   myFile.open(file_name);
 
-  //Check for proper opening of file
+
   if(!myFile){
     perror("file failed to open");
-    readData();
+    exit(-1)
   }
 
   if (myFile.is_open()) {
     myFile >> processCount;
 
-    if(myFile.fail()){
-
-      perror("\nInput file error - number of processes");
-      exit(-1);
-
-    }
-
     processList.resize(processCount);
 
     for (int i = 0; i < processCount; i++) {
       myFile >> processList[i].pid;
-      if(myFile.fail()){
-
-        perror("\nInput file error - id number");
-        exit(-1);
-
-      }
-
       myFile >> processList[i].start_time >> processList[i].burst_time;
       
-      if(myFile.fail()){
-
-        perror("\nInput file error - time data");
-        exit(-1);
-
-      }
-
-      //set memory size
       int memory_size = 0;
       int memory_sizes[10000] = { 0 };
       int sum = 0;
 
       myFile >> memory_size;
 
-      if(myFile.fail()){
-
-        perror("\nInput file error - memory size");
-        exit(-1);
-
-      }
-
       for (int j = 0; j < memory_size; j++) {
-        
+    
 	      myFile >> memory_sizes[j];
         sum += memory_sizes[j];
-
       }
       
       processList[i].request_memory_size = sum;
-
-      //initialize other data in processList
       processList[i].is_active = 0;
       processList[i].time_added_to_memory = -1;
       processList[i].finish_time = -1;
-
     }
   }
-  
-  //close file
-  myFile.close();
 
+  myFile.close();
 }
 
-// adds any newly arrived procs to the input queue
-void add_process(int current_time) {
-  
-  PROCESS process;
-  for (int i = 0; i < processCount; i++) {
 
+void add_process(int current_time) {
+  process process;
+  string print_time;
+
+  for (int i = 0; i < processCount; i++) {
     process = processList[i];
     if (process.start_time == current_time) {
 
-      string print_time = time_cast(current_time);
+
+      if (last_announcement == current_time)
+        print_time = "\t";
+      else
+        print_time = "t = " + to_string(current_time) + "\t";
+
+      last_announcement = current_time;
+  
       cout << print_time << "Process " << process.pid << " arrives\n";
 
       waitList = enqueue(waitList, process);
@@ -171,33 +143,26 @@ void add_process(int current_time) {
   }
 }
 
-// returns a string (T = x) or a tab (\t) based on new processes
-string time_cast(int current_time) {
-       
-  string result = "";
 
-  if (last_announcement == current_time)
-    result = "\t";
-  else
-    result = "t = " + to_string(current_time) + "\t";
 
-  last_announcement = current_time;
-  return result;
-
-}
-
-// removes any completed processes from memory
 void remove_process(int current_time) {
         
   int i, time_in_memory;
-  // dequeue any procs that need it
+  string result;
+
   for (i = 0; i < processCount; i++) {
   
     time_in_memory = current_time - processList[i].time_added_to_memory;
     if (processList[i].is_active &&
 	time_in_memory >= processList[i].burst_time) {
+      if (last_announcement == current_time)
+        result = "\t";
+      else
+        result = "t = " + to_string(current_time) + "\t";
 
-      cout << time_cast(current_time)  << "Process " << processList[i].pid << " completes\n";
+      last_announcement = current_time;
+
+      cout << result  << "Process " << processList[i].pid << " completes\n";
       processList[i].is_active = 0;
       processList[i].finish_time = current_time;
       frameList = free_frame(frameList, processList[i].pid);
@@ -207,7 +172,7 @@ void remove_process(int current_time) {
   }
 }
 
-// prints the average turnaround time
+
 void print_turnaround_times() {
   int i;
   float total = 0;
@@ -218,22 +183,28 @@ void print_turnaround_times() {
   cout << "Average Turnaround Time: " << total / processCount << endl;
 }
 
-// Assigns any available memory to waiting processes
-void assign_memory_for_process(int current_time) {
-  PROCESS process;
+void extra_memory_helper(int current_time) {
+  process process;
+  string result;
   int index, limit;
 
   limit = waitList.size;
 
-  // Enqueue any processes that can fit in available memory
+
   for (int i = 0; i < limit; i++) {
   
     index = get_index(waitList, i);
     process = waitList.elements[index];
 
     if (check_available_memory(frameList, process)) {
-    
-      cout << time_cast(current_time) << "MM moves Process " << process.pid << " to memory\n";
+      if (last_announcement == current_time)
+        result = "\t";
+      else
+        result = "t = " + to_string(current_time) + "\t";
+
+      last_announcement = current_time;
+
+      cout << result << "MM moves Process " << process.pid << " to memory\n";
 
       frameList = enqueue_process(frameList, process);
       

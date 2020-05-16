@@ -4,7 +4,7 @@
 using namespace std;
 
 struct frame {
-  int assigned;
+  bool assigned;
   int assigned_id;
   int pageNum;
 };
@@ -24,7 +24,7 @@ frame_list create_frame_list(int entries, int pageSize) {
   for (int i = 0; i < frameList.entries; i ++) {
     frameList.frames[i].pageNum = 0;
     frameList.frames[i].assigned_id = 0;
-    frameList.frames[i].assigned = 0;
+    frameList.frames[i].assigned = false;
   }
 
   return frameList;
@@ -33,61 +33,51 @@ frame_list create_frame_list(int entries, int pageSize) {
 
 
 frame_list free_frame(frame_list list, int pid) {
-
   for (int i = 0; i < list.entries; i++) {
-  
-    
-    switch(list.frames[i].assigned_id == pid) {
-      default:
+    if (list.frames[i].assigned_id == pid) {
       list.frames[i].assigned_id = 0;
       list.frames[i].pageNum = 0;
-      list.frames[i].assigned = 0;
+      list.frames[i].assigned = false;
     }
   }
 
   return list;
-
 }
 
-int is_empty_framelist(frame_list list) {
+bool is_empty_framelist(frame_list list) {
         
-  for (int i = 0; i < list.entries; i++)
-    if (list.frames[i].assigned) return 0;
+  for (int i = 0; i < list.entries; i++){ if (list.frames[i].assigned) return false; }
     
-  return 1;
-
+  return true;
 }
 
-int check_available_memory(frame_list list, PROCESS proc) {
+int check_available_memory(frame_list list, process proc) {
   
   int num_free_frames = 0;
 
-  for (int i = 0; i < list.entries; i++)
-    if (!list.frames[i].assigned) num_free_frames++;
+  for (int i = 0; i < list.entries; i++){ if (!list.frames[i].assigned) num_free_frames++; }
         
-  // if the number of free frames * the page size is greater than the mem req
-  // for the process in question we can fit it in.
+
   return (num_free_frames * list.page_size) >= proc.request_memory_size;
 
 }
 
-frame_list enqueue_process(frame_list list, PROCESS proc) {
+frame_list enqueue_process(frame_list list, process proc) {
 
-  // this assumes you've already checked that you CAN fit the proc into mem
+
   int remaining_mem, current_page = 1;
 
   remaining_mem = proc.request_memory_size;
 
   for (int i = 0; i < list.entries; i++) {
   
-    // if this frame is not assigned
     if (!list.frames[i].assigned) {
                         
-      // assign it
-      list.frames[i].assigned = 1;
-      // set the page number
+
+      list.frames[i].assigned = true;
+
       list.frames[i].pageNum = current_page;
-      // set the proc num
+
       list.frames[i].assigned_id = proc.pid;
 
       current_page++;

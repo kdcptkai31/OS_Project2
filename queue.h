@@ -1,40 +1,39 @@
 #pragma once
+
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
 struct process_queue {
-
   int capacity;
   int size;
-  int front;
+  int head;
   int tail;
-  vector<PROCESS> elements;
 
+  vector<process> elements;
 };
 
 process_queue create_queue(int length) {
-    
   process_queue queue;
 
   queue.elements.resize(length);
   queue.size = 0;
   queue.capacity = length;
-  queue.front = 0;
+  queue.head = 0;
   queue.tail = -1;
 
   return queue;
-
 }
 
-process_queue enqueue(process_queue queue, PROCESS process) {
+bool is_full(process_queue queue){ return (queue.size == queue.capacity); }
 
-  if (queue.size == queue.capacity) {
+process_queue enqueue(process_queue queue, process process) {
+
+  if (is_full(queue)) {
   
-    cout << "ERROR: queue is full!" << endl;
-    exit(2);
-    
+    cout << "*** Error *** queue is full!" << endl;
+    exit(-1);
   }
 
   queue.size++;
@@ -47,13 +46,13 @@ process_queue enqueue(process_queue queue, PROCESS process) {
 
 }
 
-PROCESS get_process(process_queue q, int index) {return q.elements[index];}
+process get_process(process_queue q, int index) {return q.elements[index];}
 
-int get_index(process_queue q, int index) {return q.front + index;}
+int get_index(process_queue q, int index) {return q.head + index;}
 
 void print_queue(process_queue q) {
 
-  PROCESS proc;
+  process proc;
 
   cout << "\tInput queue: [ ";
   for (int i = 0; i < q.size; i ++) {
@@ -78,10 +77,10 @@ void dequeue_proc(process_queue q) {
   }
 
   q.size--;
-  q.front++;
+  q.head++;
 
-  if (q.front == q.capacity)
-    q.front = 0;
+  if (q.head == q.capacity)
+    q.head = 0;
 
 }
 
