@@ -10,4 +10,4 @@ tar:
 	tar -cvf assignment2_Duty-Thompson-Webber.tar *.docx *.cpp *.h *.md *.png
 
 clean: 
-	rm *.o assignment2_Duty-Thompson-Webber.tar
+	rm *.o main assignment2_Duty-Thompson-Webber.tar

@@ -1,19 +1,9 @@
 #pragma once
 
+#include "process.h"
 #include "queue.h"
 #include "memory.h"
 #include <string>
-
-class process{
-public:
-  int pid;
-  int start_time;
-  int burst_time;
-  int request_memory_size;
-  int time_added_to_memory;
-  int is_active;
-  int finish_time;
-};
 
 void readData();
 

@@ -20,6 +20,7 @@ frame_list frameList;
 
 int main() {
 
+  //Prompts the user for them to enter the memmory size and the page size.
   while (true) {
     cout << "Please enter memory size(0-30000): ";
     cin >> memorySize;
@@ -83,7 +84,7 @@ void readData() {
 
   if(!myFile){
     perror("file failed to open");
-    exit(-1)
+    exit(-1);
   }
 
   if (myFile.is_open()) {
