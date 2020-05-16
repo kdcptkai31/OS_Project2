@@ -53,13 +53,13 @@ int get_index(process_queue q, int index) {return q.head + index;}
 
 void print_queue(process_queue q) {
 
-  process proc;
+  process process;
 
   cout << "\tInput queue: [ ";
   for (int i = 0; i < q.size; i ++) {
   
-    proc = get_process(q, get_index(q, i));
-    cout << proc.pid << " ";
+    process = get_process(q, get_index(q, i));
+    cout << process.pid << " ";
    
   }
  

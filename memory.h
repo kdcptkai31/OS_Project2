@@ -1,5 +1,5 @@
 #pragma once
-#include<vector>
+#include <vector>
 #include "process.h"
 
 using namespace std;
@@ -74,11 +74,8 @@ frame_list enqueue_process(frame_list list, process proc) {
   
     if (!list.frames[i].assigned) {
                         
-
       list.frames[i].assigned = true;
-
       list.frames[i].pageNum = current_page;
-
       list.frames[i].assigned_id = proc.pid;
 
       current_page++;
@@ -126,10 +123,9 @@ void print_list(frame_list list) {
 
   }
    
-  if (is_free) {
-                
+  if (is_free) {      
     cout << "\t\t" << start * list.page_size << "-"
-	 << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
+	       << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
         
   }
 }

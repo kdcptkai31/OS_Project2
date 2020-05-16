@@ -21,7 +21,7 @@ frame_list frameList;
 int main() {
     
     //Prompts the user for them to enter the memmory size and the page size.
-    while ( 1 ) {
+    while ( true ) {
         cout << "Please enter memory size(0-30000): ";
         cin >> memorySize;
         
@@ -42,7 +42,7 @@ int main() {
     
     long current_time = 0;
     
-    while ( 1 ) {
+    while ( true ) {
         add_process(current_time);
         remove_process(current_time);
         extra_memory_helper(current_time);
