@@ -31,6 +31,7 @@ public:
     
     void insertProcess(process proc);
     void printFrames();
+    void print();
     
     vector<frame> frames;
     int records;
@@ -53,7 +54,6 @@ frameList::frameList(int recordsIn, int pageSizeIn) {
 }
 
 void frameList::releaseFrame(int pid) {
-    cout << "release\n";
     for ( frame e : frames) {
         if(e.assignedID == pid ) {
             e.assignedID = 0;
@@ -64,7 +64,6 @@ void frameList::releaseFrame(int pid) {
 }
 
 bool frameList::isEmpty() {
-    cout << "isempty\n";
     for ( frame e : frames ) {
         if( e.assigned )
             return false;
@@ -74,7 +73,6 @@ bool frameList::isEmpty() {
 
 
 int frameList::memoryAvailable(process proc) {
-   // cout << "memory av\n";
     int free = 0;
     for( int i = 0; i < records; i++) {
         if( !frames.at(i).assigned )
@@ -85,33 +83,32 @@ int frameList::memoryAvailable(process proc) {
 
 
 void frameList::insertProcess(process proc) {
-    cout << "insert\n";
     int memory, page = 1;
     memory = proc.request_memory_size;
-    
-    for ( frame e : frames ) {
-        if(!e.assigned) {
-            e.assigned = true;
-            e.pageNum = page;
-            e.assignedID = proc.pid;
+    cout << "Mem size: " << proc.request_memory_size << endl;
+    for ( int i = 0; i < records; i++ ) {
+        if(!frames.at(i).assigned) {
+            frames.at(i).assigned = true;
+            frames.at(i).pageNum = page;
+            frames.at(i).assignedID = proc.pid;
+            
             
             page++;
             memory -= pageSize;
         }
-         if (memory <= 0) break;
+        if (memory <= 0) 
+            break;
     }
 }
 
 
 void frameList::printFrames() {
-    cout << "print\n";
     bool free = false;
     int begin = 0, i = 0;;
     
     cout << "\tMemory map:\n";
     
     for ( frame e : frames ) {
-        i++;
         if( !free && !e.assigned ) {
             free = true;
             begin = i;
@@ -123,12 +120,22 @@ void frameList::printFrames() {
         if( e.assigned ) {
             cout << "\t\t" << i * pageSize << "-" << ((i + 1) * pageSize) - 1 << ": Process" << e.assignedID << ", Page " << e.pageNum << endl;
         }
+        i++;
     }
     if (free) {
-      cout << "\t\t" << begin * pageSize<< "-"
-             << ((records) * pageSize) - 1 << ": Free frame(s)\n";
+      cout << "\t\t" << begin * pageSize<< "-" << ((records) * pageSize) - 1 << ": Free frame(s)\n";
           
     }
 }
 
 
+void frameList::print() {
+    cout << "Printing all frame info: \n";
+    for ( frame e : frames ) {
+        cout << "\t" << e.assignedID << " " << e.pageNum << " assigned: ";
+        if(e.assigned)
+            cout << "yes\n";
+        else
+            cout << "no\n";
+    }
+}
