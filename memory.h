@@ -1,132 +1,134 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include "process.h"
+#include "header.h"
+
+class process{
+public:
+  int pid;
+  int start_time;
+  int burst_time;
+  int request_memory_size;
+  int time_added_to_memory;
+  int is_active;
+  int finish_time;
+};
 
 using namespace std;
-
 struct frame {
   bool assigned;
-  int assigned_id;
+  int assignedID;
   int pageNum;
 };
 
-struct frame_list {
-  vector<frame> frames;
-  int entries;
-  int page_size;
+class frameList {
+public:
+    frameList();
+    frameList(int entries, int pageSize);
+    void releaseFrame(int pid);
+    bool isEmpty();
+    int memoryAvailable(process proc);
+    
+    void insertProcess(process proc);
+    void printFrames();
+    
+    vector<frame> frames;
+    int records;
+    int pageSize;
 };
 
-frame_list create_frame_list(int entries, int pageSize) {
-  frame_list frameList;
-  frameList.frames.resize(entries);
-  frameList.page_size = pageSize;
-  frameList.entries = entries;
 
-  for (int i = 0; i < frameList.entries; i ++) {
-    frameList.frames[i].pageNum = 0;
-    frameList.frames[i].assigned_id = 0;
-    frameList.frames[i].assigned = false;
-  }
+frameList::frameList() {}
 
-  return frameList;
-
-}
-
-
-frame_list free_frame(frame_list list, int pid) {
-  for (int i = 0; i < list.entries; i++) {
-    if (list.frames[i].assigned_id == pid) {
-      list.frames[i].assigned_id = 0;
-      list.frames[i].pageNum = 0;
-      list.frames[i].assigned = false;
-    }
-  }
-
-  return list;
-}
-
-bool is_empty_framelist(frame_list list) {
-        
-  for (int i = 0; i < list.entries; i++){ if (list.frames[i].assigned) return false; }
+frameList::frameList(int recordsIn, int pageSizeIn) {
+    frames.resize(recordsIn);
+    pageSize = pageSizeIn;
+    records = recordsIn;
     
-  return true;
-}
-
-int check_available_memory(frame_list list, process proc) {
-  
-  int num_free_frames = 0;
-
-  for (int i = 0; i < list.entries; i++){ if (!list.frames[i].assigned) num_free_frames++; }
-        
-
-  return (num_free_frames * list.page_size) >= proc.request_memory_size;
-
-}
-
-frame_list enqueue_process(frame_list list, process proc) {
-
-
-  int remaining_mem, current_page = 1;
-
-  remaining_mem = proc.request_memory_size;
-
-  for (int i = 0; i < list.entries; i++) {
-  
-    if (!list.frames[i].assigned) {
-                        
-      list.frames[i].assigned = true;
-      list.frames[i].pageNum = current_page;
-      list.frames[i].assigned_id = proc.pid;
-
-      current_page++;
-      remaining_mem -= list.page_size;
-      
+    for( frame e : frames ) {
+        e.pageNum = 0;
+        e.assignedID = 0;
+        e.assigned = false;
     }
+}
 
-    if (remaining_mem <= 0) break;
+void frameList::releaseFrame(int pid) {
+    cout << "release\n";
+    for ( frame e : frames) {
+        if(e.assignedID == pid ) {
+            e.assignedID = 0;
+            e.pageNum = 0;
+            e.assigned = false;
+        }
+    }
+}
+
+bool frameList::isEmpty() {
+    cout << "isempty\n";
+    for ( frame e : frames ) {
+        if( e.assigned )
+            return false;
+    }
+    return true;
+}
+
+
+int frameList::memoryAvailable(process proc) {
+   // cout << "memory av\n";
+    int free = 0;
+    for( int i = 0; i < records; i++) {
+        if( !frames.at(i).assigned )
+            free++;
+    }
+    return ( free * pageSize ) >= proc.request_memory_size;
+}
+
+
+void frameList::insertProcess(process proc) {
+    cout << "insert\n";
+    int memory, page = 1;
+    memory = proc.request_memory_size;
     
-  }
-
-  return list;
-
+    for ( frame e : frames ) {
+        if(!e.assigned) {
+            e.assigned = true;
+            e.pageNum = page;
+            e.assignedID = proc.pid;
+            
+            page++;
+            memory -= pageSize;
+        }
+         if (memory <= 0) break;
+    }
 }
 
-void print_list(frame_list list) {
 
-  bool is_free = false;
-  int start = 0;
-
-  cout << "\tMemory map:\n";
-
-  for (int i = 0; i < list.entries; i++) {
-  
-    if (!is_free && !list.frames[i].assigned) {
+void frameList::printFrames() {
+    cout << "print\n";
+    bool free = false;
+    int begin = 0, i = 0;;
     
-      is_free = true;
-      start = i;
-
-    }else if (is_free && list.frames[i].assigned) {
-
-      is_free = false;
-      cout << "\t\t" << start * list.page_size << "-"
-       << (i * list.page_size) - 1 << ": Free frame(s)\n";
-    }
-     
-    if (list.frames[i].assigned) {
-
-      cout << "\t\t" << i * list.page_size << "-"
-       << ((i + 1) * list.page_size) - 1 << ": Process"
-           << list.frames[i].assigned_id << ", Page "
-           << list.frames[i].pageNum << endl;
-           
-    }
-
-  }
-   
-  if (is_free) {
-    cout << "\t\t" << start * list.page_size << "-"
-           << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
+    cout << "\tMemory map:\n";
+    
+    for ( frame e : frames ) {
+        i++;
+        if( !free && !e.assigned ) {
+            free = true;
+            begin = i;
+        } else if ( free && e.assigned ) {
+            free = false;
+            cout << "\t\t" << begin * pageSize << "-" << (i * pageSize) - 1 << ": Free frame(s)\n";
+        }
         
-  }
+        if( e.assigned ) {
+            cout << "\t\t" << i * pageSize << "-" << ((i + 1) * pageSize) - 1 << ": Process" << e.assignedID << ", Page " << e.pageNum << endl;
+        }
+    }
+    if (free) {
+      cout << "\t\t" << begin * pageSize<< "-"
+             << ((records) * pageSize) - 1 << ": Free frame(s)\n";
+          
+    }
 }
+
+
