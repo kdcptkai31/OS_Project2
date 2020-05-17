@@ -173,7 +173,7 @@ void extra_memory_helper(long current_time) {
     process process_;
     string result;
     int limit;
-    deque<process> temp = waitQueue;
+    //deque<process> temp = waitQueue;
     
     limit = int(waitQueue.size());
     
@@ -205,7 +205,7 @@ void extra_memory_helper(long current_time) {
                 }
             }
             cout << "Input Queue [ ";
-            for( process e : processList ) {
+            for( process e : waitQueue ) {
                 cout << e.pid << " ";
             }
             cout << "]\n";
