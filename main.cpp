@@ -15,7 +15,7 @@ string file_name;
 long last_announcement = -1;
 
 vector<process> processList;
-process_queue waitList;
+deque<process> waitQueue;
 frame_list frameList;
 
 int main() {
@@ -37,7 +37,6 @@ int main() {
     }
     
     readData();
-    waitList = create_queue(processCount);
     frameList = create_frame_list(memorySize / pageSize, pageSize);
     
     long current_time = 0;
@@ -54,7 +53,7 @@ int main() {
             break;
         }
         
-        if (waitList.size == 0 && is_empty_framelist(frameList))
+        if (waitQueue.size() == 0 && is_empty_framelist(frameList))
             break;
     }
     print_turnaround_times();
@@ -125,9 +124,8 @@ void add_process(long current_time) {
             
             cout << print_time << "Process " << process.pid << " arrives\n";
             
-            waitList = enqueue(waitList, process);
-            print_queue(waitList);
-            
+            waitQueue.push_front(process);
+            cout << process.pid << " ";
         }
     }
 }
@@ -143,8 +141,7 @@ void remove_process(long current_time) {
     for (i = 0; i < processCount; i++) {
         
         time_in_memory = current_time - long(processList[i].time_added_to_memory);
-        if (processList[i].is_active &&
-            time_in_memory >= processList[i].burst_time) {
+        if (processList[i].is_active && time_in_memory >= processList[i].burst_time) {
             if (last_announcement == current_time)
                 result = "\t";
             else
@@ -167,25 +164,25 @@ void print_turnaround_times() {
     float total = 0;
     
     for( process e : processList ) {
-        total +=e.finish_time - e.start_time;
+        total += e.finish_time - e.start_time;
     }
     cout << "Average Turnaround Time: " << total / processCount << endl;
 }
 
 void extra_memory_helper(long current_time) {
-    process process;
+    process process_;
     string result;
-    int index, limit;
+    int limit;
+    deque<process> temp = waitQueue;
     
-    limit = waitList.size;
+    limit = int(waitQueue.size());
     
     
-    for (int i = 0; i < limit; i++) {
+    for (int i = 0; i < limit; i++ ) {
         
-        index = get_index(waitList, i);
-        process = waitList.elements[index];
+        process_ = waitQueue.front();
         
-        if (check_available_memory(frameList, process)) {
+        if (check_available_memory(frameList, process_)) {
             if (last_announcement == current_time)
                 result = "\t";
             else
@@ -193,22 +190,25 @@ void extra_memory_helper(long current_time) {
             
             last_announcement = current_time;
             
-            cout << result << "MM moves Process " << process.pid << " to memory\n";
+            cout << result << "MM moves Process " << process_.pid << " to memory\n";
             
-            frameList = enqueue_process(frameList, process);
+            frameList = enqueue_process(frameList, process_);
             
             for (int j = 0; j < processCount; j++) {
                 
-                if (processList[j].pid == process.pid) {
+                if (processList[j].pid == process_.pid) {
                     
                     processList[j].is_active = 1;
                     processList[j].time_added_to_memory = int(current_time);
-                    waitList = dequeue_process(waitList, i);
+                    waitQueue.pop_front();
                     
                 }
             }
-            
-            print_queue(waitList);
+            cout << "Input Queue [ ";
+            for( process e : processList ) {
+                cout << e.pid << " ";
+            }
+            cout << "]\n";
             print_list(frameList);
             
         }

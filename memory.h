@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <iostream>
 #include "process.h"
 
 using namespace std;
@@ -109,13 +110,13 @@ void print_list(frame_list list) {
 
       is_free = false;
       cout << "\t\t" << start * list.page_size << "-"
-	   << (i * list.page_size) - 1 << ": Free frame(s)\n";
+       << (i * list.page_size) - 1 << ": Free frame(s)\n";
     }
      
     if (list.frames[i].assigned) {
 
       cout << "\t\t" << i * list.page_size << "-"
-	   << ((i + 1) * list.page_size) - 1 << ": Process"
+       << ((i + 1) * list.page_size) - 1 << ": Process"
            << list.frames[i].assigned_id << ", Page "
            << list.frames[i].pageNum << endl;
            
@@ -123,9 +124,9 @@ void print_list(frame_list list) {
 
   }
    
-  if (is_free) {      
+  if (is_free) {
     cout << "\t\t" << start * list.page_size << "-"
-	       << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
+           << ((list.entries)* list.page_size) - 1 << ": Free frame(s)\n";
         
   }
 }
