@@ -35,8 +35,8 @@ In the respective directory, run "make clean" followed by "make all".  These com
 ______________________________________________________________________________________________________________________________
 
 ### Screen Shots:
-![Alt text](execution.png?raw=true "Optional Title")
-![Alt text](execution2.png?raw=true "optional Title")
+![Alt text](exec1.png?raw=true "Optional Title")
+![Alt text](exec2.png?raw=true "optional Title")
 
 _______________________________________________________________________________________________________________________________
 
