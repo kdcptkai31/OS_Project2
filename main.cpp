@@ -22,22 +22,8 @@ int main() {
     
     inputAndInit();
     
-    long current_time = 0;
+    mainLoop();
     
-    while ( true ) {
-        add_process(current_time);
-        remove_process(current_time, *frame_list);
-        extra_memory_helper(current_time, *frame_list);
-        
-        current_time++;
-        
-        if (current_time > TIME_MAX) {
-            cout << "DEADLOCK: max time reached\n";
-            break;
-        }
-        if (waitQueue.size() == 0 && frame_list->isEmpty())
-            break;
-    }
     print_turnaround_times();
     
     return 0;
@@ -100,6 +86,26 @@ void inputAndInit() {
     myFile.close();
     frameList *tmp = new frameList(memorySize / pageSize, pageSize);
     frame_list = tmp;
+}
+
+
+void mainLoop() {
+    long current_time = 0;
+    
+    while ( true ) {
+        add_process(current_time);
+        remove_process(current_time, *frame_list);
+        extra_memory_helper(current_time, *frame_list);
+        
+        current_time++;
+        
+        if (current_time > TIME_MAX) {
+            cout << "DEADLOCK: max time reached\n";
+            break;
+        }
+        if (waitQueue.size() == 0 && frame_list->isEmpty())
+            break;
+    }
 }
 
 

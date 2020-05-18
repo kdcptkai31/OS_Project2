@@ -5,6 +5,8 @@
 
 void inputAndInit();
 
+void mainLoop();
+
 void add_process(long current_time);
 
 void extra_memory_helper(long current_time, frameList& frame_list);
