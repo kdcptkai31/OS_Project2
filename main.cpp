@@ -34,11 +34,12 @@ void inputAndInit() {
         cout << "Please enter memory size(0-30000): ";
         cin >> memorySize;
         
-        cout << "Please enter page size: ";
+        cout << "Please enter page size(100, 200, or 400): ";
         cin >> pageSize;
         
         if (memorySize > 0 && pageSize > 0 &&
             memorySize % pageSize == 0 &&
+            (pageSize == 100 || pageSize == 200 || pageSize == 400) &&
             memorySize <= MEMORY_MAX)
             break;
         
@@ -49,7 +50,6 @@ void inputAndInit() {
     
     ifstream myFile;
     myFile.open(file_name);
-    
     
     if(!myFile){
         perror("file failed to open");
