@@ -54,11 +54,11 @@ frameList::frameList(int recordsIn, int pageSizeIn) {
 }
 
 void frameList::releaseFrame(int pid) {
-    for ( frame e : frames) {
-        if(e.assignedID == pid ) {
-            e.assignedID = 0;
-            e.pageNum = 0;
-            e.assigned = false;
+    for ( int i = 0; i < records; i++) {
+        if(frames.at(i).assignedID == pid ) {
+            frames.at(i).assignedID = 0;
+            frames.at(i).pageNum = 0;
+            frames.at(i).assigned = false;
         }
     }
 }
@@ -85,7 +85,7 @@ int frameList::memoryAvailable(process proc) {
 void frameList::insertProcess(process proc) {
     int memory, page = 1;
     memory = proc.request_memory_size;
-    cout << "Mem size: " << proc.request_memory_size << endl;
+    
     for ( int i = 0; i < records; i++ ) {
         if(!frames.at(i).assigned) {
             frames.at(i).assigned = true;
