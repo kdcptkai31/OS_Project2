@@ -16,10 +16,34 @@ long last_announcement = -1;
 
 vector<process> processList;
 deque<process> waitQueue;
+frameList* frame_list;
 
 int main() {
     
-    //Prompts the user for them to enter the memmory size and the page size.
+    inputAndInit();
+    
+    long current_time = 0;
+    
+    while ( true ) {
+        add_process(current_time);
+        remove_process(current_time, *frame_list);
+        extra_memory_helper(current_time, *frame_list);
+        
+        current_time++;
+        
+        if (current_time > TIME_MAX) {
+            cout << "DEADLOCK: max time reached\n";
+            break;
+        }
+        if (waitQueue.size() == 0 && frame_list->isEmpty())
+            break;
+    }
+    print_turnaround_times();
+    
+    return 0;
+}
+
+void inputAndInit() {
     while ( true ) {
         cout << "Please enter memory size(0-30000): ";
         cin >> memorySize;
@@ -74,27 +98,8 @@ int main() {
     }
     
     myFile.close();
-    frameList frame_list(memorySize / pageSize, pageSize);
-    
-    long current_time = 0;
-    
-    while ( true ) {
-        add_process(current_time);
-        remove_process(current_time, frame_list);
-        extra_memory_helper(current_time, frame_list);
-        
-        current_time++;
-        
-        if (current_time > TIME_MAX) {
-            cout << "DEADLOCK: max time reached\n";
-            break;
-        }
-        if (waitQueue.size() == 0 && frame_list.isEmpty())
-            break;
-    }
-    print_turnaround_times();
-    
-    return 0;
+    frameList *tmp = new frameList(memorySize / pageSize, pageSize);
+    frame_list = tmp;
 }
 
 
@@ -115,11 +120,7 @@ void add_process(long current_time) {
             cout << print_time << "Process " << process_.pid << " arrives\n";
             
             waitQueue.push_back(process_);
-            cout << "Input Queue [ ";
-                   for( process e : waitQueue ) {
-                       cout << e.pid << " ";
-                   }
-                   cout << "]\n";
+            printInputQue();
         }
     }
 }
@@ -193,13 +194,16 @@ void extra_memory_helper(long current_time, frameList& frame_list) {
                     limit--;
                 }
             }
-            cout << "Input Queue [ ";
-            for( process e : waitQueue ) {
-                cout << e.pid << " ";
-            }
-            cout << "]\n";
+            printInputQue();
             frame_list.printFrames();
         }
     }
 }
 
+void printInputQue() {
+    cout << "Input Queue [ ";
+    for( process e : waitQueue ) {
+        cout << e.pid << " ";
+    }
+    cout << "]\n";
+}
